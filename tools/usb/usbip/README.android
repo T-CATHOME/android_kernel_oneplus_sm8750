@@ -1,47 +1,58 @@
 # USB/IP for Android kernel tree
 
-## Kernel module configuration (6.6.89-android1)
+## 1) 内核模块（6.6.89-android1）
 
-The following options are enabled in
-`arch/arm64/configs/gki_defconfig`:
+已在 `arch/arm64/configs/gki_defconfig` 启用四个 USB/IP 模块：
 
 - `CONFIG_USBIP_CORE=m` -> `usbip-core.ko`
 - `CONFIG_USBIP_VHCI_HCD=m` -> `vhci-hcd.ko`
+- `CONFIG_USBIP_HOST=m` -> `usbip-host.ko`
+- `CONFIG_USBIP_VUDC=m` -> `usbip-vudc.ko`
 
-`vhci-hcd.ko` depends on `usbip-core.ko`.
+### 四个模块作用
 
-Recommended load order:
+- `usbip-core.ko`：USB/IP 公共协议与事件核心层，其他 USB/IP 模块的基础依赖。
+- `vhci-hcd.ko`：客户端虚拟主机控制器，用于把远端 USB 设备“挂载”到本机。
+- `usbip-host.ko`：服务端主机导出驱动，用于把本机 USB 设备导出给远端。
+- `usbip-vudc.ko`：虚拟 UDC 驱动，用于设备模式（gadget）场景下通过 USB/IP 导出虚拟 USB 设备。
+
+### 依赖与加载顺序
+
+推荐顺序（按需加载）：
 
 1. `modprobe usbip-core`
-2. `modprobe vhci-hcd`
+2. 客户端场景：`modprobe vhci-hcd`
+3. 主机导出场景：`modprobe usbip-host`
+4. gadget 场景：`modprobe usbip-vudc`
 
-## Userspace tools build
+## 2) 用户态工具（NDK）
 
-This repository does not commit generated binaries. Build from source:
+本仓库不提交生成二进制，请在本地或 CI 中从源码构建。
 
 ```bash
 cd tools/usb
 make usbip
 ```
 
-or:
+或：
 
 ```bash
 cd tools/usb/usbip
-./build_android.sh
+ANDROID_NDK_HOME=/path/to/android-ndk ./build_android.sh
 ```
 
-### Dependencies checked by script
+### 构建脚本检查项
 
-- `autoreconf`, `automake`, `autoconf`, `make`
-- `pkg-config`
-- `libudev` development package (`pkg-config --exists libudev`)
+- `ANDROID_NDK_HOME`（或 `ANDROID_NDK_ROOT`）
+- NDK 工具链：`clang` / `llvm-ar` / `llvm-ranlib`
+- `autoreconf`, `automake`, `autoconf`, `make`, `pkg-config`
+- `libudev` 开发库（`pkg-config --exists libudev`）
 
-### Output
+## 3) 输出产物
 
-Default output directory: `tools/usb/usbip/out/install`
+默认输出目录：`tools/usb/usbip/out/install`
 
 - `sbin/usbip`
 - `sbin/usbipd`
 
-You can override output path with `OUT_DIR=/absolute/path`.
+可通过 `OUT_DIR=/absolute/path` 覆盖输出目录。
