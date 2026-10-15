@@ -21,6 +21,9 @@ ALL_PROGRAMS := $(patsubst %,$(OUTPUT)%,$(ALL_TARGETS))
 
 all: $(ALL_PROGRAMS)
 
+usbip:
+	$(Q)cd usbip && ./build_android.sh
+
 export srctree OUTPUT CC LD CFLAGS
 include $(srctree)/tools/build/Makefile.include
 
@@ -48,4 +51,4 @@ install: $(ALL_PROGRAMS)
 
 FORCE:
 
-.PHONY: all install clean FORCE prepare
+.PHONY: all install clean usbip FORCE prepare
