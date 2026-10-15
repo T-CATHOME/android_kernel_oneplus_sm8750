@@ -1,0 +1,47 @@
+# USB/IP for Android kernel tree
+
+## Kernel module configuration (6.6.89-android1)
+
+The following options are enabled in
+`arch/arm64/configs/gki_defconfig`:
+
+- `CONFIG_USBIP_CORE=m` -> `usbip-core.ko`
+- `CONFIG_USBIP_VHCI_HCD=m` -> `vhci-hcd.ko`
+
+`vhci-hcd.ko` depends on `usbip-core.ko`.
+
+Recommended load order:
+
+1. `modprobe usbip-core`
+2. `modprobe vhci-hcd`
+
+## Userspace tools build
+
+This repository does not commit generated binaries. Build from source:
+
+```bash
+cd tools/usb
+make usbip
+```
+
+or:
+
+```bash
+cd tools/usb/usbip
+./build_android.sh
+```
+
+### Dependencies checked by script
+
+- `autoreconf`, `automake`, `autoconf`, `make`
+- `pkg-config`
+- `libudev` development package (`pkg-config --exists libudev`)
+
+### Output
+
+Default output directory: `tools/usb/usbip/out/install`
+
+- `sbin/usbip`
+- `sbin/usbipd`
+
+You can override output path with `OUT_DIR=/absolute/path`.
