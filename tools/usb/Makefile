@@ -22,7 +22,7 @@ ALL_PROGRAMS := $(patsubst %,$(OUTPUT)%,$(ALL_TARGETS))
 all: $(ALL_PROGRAMS)
 
 usbip:
-	$(Q)$(MAKE) -C usbip android-build
+	$(Q)cd usbip && ./build_android.sh
 
 export srctree OUTPUT CC LD CFLAGS
 include $(srctree)/tools/build/Makefile.include
